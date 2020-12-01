@@ -564,6 +564,9 @@ impl<'gc> DisplayPropertyMap<'gc> {
         property_map.add_property("_xmouse", x_mouse, None);
         property_map.add_property("_ymouse", y_mouse, None);
 
+        // Not part of the published spec?!
+        property_map.add_property("_lockroot", lock_root, Some(set_lock_root));
+
         GcCell::allocate(gc_context, property_map)
     }
 
@@ -861,6 +864,26 @@ fn set_high_quality<'gc>(
     _val: Value<'gc>,
 ) -> Result<(), Error<'gc>> {
     avm_warn!(activation, "Unimplemented property _highquality");
+    Ok(())
+}
+
+fn lock_root<'gc>(
+    _activation: &mut Activation<'_, 'gc, '_>,
+    this: DisplayObject<'gc>,
+) -> Result<Value<'gc>, Error<'gc>> {
+    let val = this.lock_root();
+    Ok(val.into())
+}
+
+fn set_lock_root<'gc>(
+    activation: &mut Activation<'_, 'gc, '_>,
+    this: DisplayObject<'gc>,
+    val: Value<'gc>,
+) -> Result<(), Error<'gc>> {
+    // Differently from _visible, this is treated as a proper boolean
+    // and setting it always has an effect
+    let val = val.as_bool(activation.swf_version());
+    this.set_lock_root(activation.context.gc_context, val);
     Ok(())
 }
 
