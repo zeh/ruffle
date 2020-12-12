@@ -213,7 +213,6 @@ pub fn create_proto<'gc>(
         "enabled" => [enabled, set_enabled],
         "focusEnabled" => [focus_enabled, set_focus_enabled],
         "_lockroot" => [lock_root, set_lock_root],
-        "_root" => [root],
     );
 
     object.into()
@@ -1252,27 +1251,6 @@ fn set_lock_root<'gc>(
     value: Value<'gc>,
 ) -> Result<(), Error<'gc>> {
     let lock_root = value.as_bool(activation.current_swf_version());
-    this.set_lock_root(&mut activation.context, lock_root);
+    this.set_lock_root(activation.context.gc_context, lock_root);
     Ok(())
-}
-
-fn root<'gc>(
-    this: MovieClip<'gc>,
-    activation: &mut Activation<'_, 'gc, '_>,
-) -> Result<Value<'gc>, Error<'gc>> {
-    // If lock_root is set, just use this; otherwise, get from the parent
-    if lock_root(this, activation).into() {
-        if let Some(display_object) = this.as_display_object() {
-            return display_object
-        }
-    } else {
-        if let Some(display_object) = this.as_display_object() {
-            if lock_root(this, activation) {
-                return display_object;
-            } else if let Some(movie_clip) = display_object.as_movie_clip() {
-                return movie_clip.parent()
-            }
-        }
-    }
-    None
 }
