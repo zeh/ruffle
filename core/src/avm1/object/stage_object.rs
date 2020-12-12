@@ -864,6 +864,26 @@ fn set_high_quality<'gc>(
     Ok(())
 }
 
+fn lock_root<'gc>(
+    _activation: &mut Activation<'_, 'gc, '_>,
+    this: DisplayObject<'gc>,
+) -> Result<Value<'gc>, Error<'gc>> {
+    let val = this.lock_root();
+    Ok(val.into())
+}
+
+fn set_lock_root<'gc>(
+    activation: &mut Activation<'_, 'gc, '_>,
+    this: DisplayObject<'gc>,
+    val: Value<'gc>,
+) -> Result<(), Error<'gc>> {
+    // Differently from _visible, this is treated as a proper boolean
+    // and setting it always has an effect
+    let val = val.as_bool(activation.swf_version());
+    this.set_lock_root(activation.context.gc_context, val);
+    Ok(())
+}
+
 fn focus_rect<'gc>(
     activation: &mut Activation<'_, 'gc, '_>,
     _this: DisplayObject<'gc>,
