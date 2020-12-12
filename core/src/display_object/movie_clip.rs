@@ -63,6 +63,7 @@ pub struct MovieClipData<'gc> {
     is_focusable: bool,
     has_focus: bool,
     enabled: bool,
+    lock_root: bool,
 }
 
 unsafe impl<'gc> Collect for MovieClipData<'gc> {
@@ -99,6 +100,7 @@ impl<'gc> MovieClip<'gc> {
                 is_focusable: false,
                 has_focus: false,
                 enabled: true,
+                lock_root: false,
             },
         ))
     }
@@ -138,6 +140,7 @@ impl<'gc> MovieClip<'gc> {
                 is_focusable: false,
                 has_focus: false,
                 enabled: true,
+                lock_root: false,
             },
         ))
     }
@@ -1654,6 +1657,14 @@ impl<'gc> MovieClip<'gc> {
 
     pub fn set_enabled(self, context: &mut UpdateContext<'_, 'gc, '_>, enabled: bool) {
         self.0.write(context.gc_context).enabled = enabled;
+    }
+
+    pub fn lock_root(self) -> bool {
+        self.0.read().lock_root
+    }
+
+    pub fn set_lock_root(self, context: &mut UpdateContext<'_, 'gc, '_>, lock_root: bool) {
+        self.0.write(context.gc_context).lock_root = lock_root;
     }
 }
 
